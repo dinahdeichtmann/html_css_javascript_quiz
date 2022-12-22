@@ -2,7 +2,6 @@
 
 const questionElement = document.getElementById("question");
 const choicesElements = Array.from(document.getElementsByClassName("choice-text"));
-//console.log(choicesElements);
 
 // VARIABLES
 
@@ -51,43 +50,41 @@ let questions = [
 
 function startGame() {
 
-    // (re)set the question counter and score
+    // set variables
     questionCounter = 0;
     score = 0;
-    // make a copy of the questions array
     availableQuestions = [...questions];
-    // display a (new) question         
+
+    // display a (new) question
     getNewQuestion();
 };
 
+
 function getNewQuestion() {
 
-    // take the user to the end page if there are no more available questions OR the set number of questions for this game has been reached
+    // take the user to the end page if there are no more available questions OR the limit has been reached
     if (availableQuestions === 0 || questionCounter >= maxQuestions) {
-        // go to the end page
         return window.location.assign('/end.html');
     }
 
     // increment the question counter
     questionCounter++;
 
-    // get a random number between 0 and [the maximum of questions]
+    // display a question at random
     const questionIndex = Math.floor(Math.random() * availableQuestions.length);
-    // get a question based on the random number 
     currentQuestion = availableQuestions[questionIndex];
-    // display the text of the question on the page
     questionElement.innerText = currentQuestion.question;
 
+    // display the question's choices
     choicesElements.forEach(choice => {
-        // get the number from the dataset property (referencing the HTML custom attribute 'data-number')
         const number = choice.dataset['number'];
-        // display the text of the choice[1, 2, 3, 4] (see dummy data)
         choice.innerText = currentQuestion['choice' + number];
     });
 
-    // remove the current question from the available questions so that it doesn't show up again in this session
+    // remove the current question from available questions
     availableQuestions.splice(questionIndex, 1);
-    // let user select an answer now that the question is fully loaded
+
+    // let the user select an answer
     acceptingAnswers = true;
 };
 
@@ -104,12 +101,24 @@ choicesElements.forEach(choice => {
             return
         };
         
+        // stop accepting answers once the user clicked on a choice
         acceptingAnswers = false;
+
+        // check that answer is correct
         const selectedChoice = event.target;
         const selectedAnswer = selectedChoice.dataset['number'];
+        const classToApply = selectedAnswer == currentQuestion.answer ? 'correct' : 'incorrect';
 
-        // once the current question is answered, get a new one
-        getNewQuestion();
+        // apply fitting HTML class
+        selectedChoice.parentElement.classList.add(classToApply);
+
+        // remove class and load next question after 1s
+        setTimeout( () => {
+
+            selectedChoice.parentElement.classList.remove(classToApply);
+            //getNewQuestion();
+
+        }, 1000);
 
     });
 });
