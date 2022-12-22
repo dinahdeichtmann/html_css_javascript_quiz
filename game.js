@@ -2,6 +2,8 @@
 
 const questionElement = document.getElementById("question");
 const choicesElements = Array.from(document.getElementsByClassName("choice-text"));
+const questionCounterElement = document.getElementById('question-counter');
+const scoreElement = document.getElementById('score');
 
 // VARIABLES
 
@@ -69,6 +71,7 @@ function getNewQuestion() {
 
     // increment the question counter
     questionCounter++;
+    questionCounterElement.innerText = `${questionCounter}/${maxQuestions}`
 
     // display a question at random
     const questionIndex = Math.floor(Math.random() * availableQuestions.length);
@@ -87,6 +90,11 @@ function getNewQuestion() {
     // let the user select an answer
     acceptingAnswers = true;
 };
+
+function incrementScore(number) {
+    score += number
+    scoreElement.innerText = score;
+}
 
 // EVENT LISTENERS
 
@@ -112,11 +120,16 @@ choicesElements.forEach(choice => {
         // apply fitting HTML class
         selectedChoice.parentElement.classList.add(classToApply);
 
+        //increment score
+        if (classToApply == 'correct') {
+            incrementScore(correctBonus);
+        };
+
         // remove class and load next question after 1s
         setTimeout( () => {
 
             selectedChoice.parentElement.classList.remove(classToApply);
-            //getNewQuestion();
+            getNewQuestion();
 
         }, 1000);
 
