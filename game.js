@@ -67,6 +67,8 @@ function getNewQuestion() {
 
     // take the user to the end page if there are no more available questions OR the limit has been reached
     if (availableQuestions === 0 || questionCounter >= maxQuestions) {
+        // save the score to local storage
+        localStorage.setItem("mostRecentScore", score);
         return window.location.assign('/end.html');
     }
 
