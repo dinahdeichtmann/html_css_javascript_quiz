@@ -2,8 +2,9 @@
 
 const questionElement = document.getElementById("question");
 const choicesElements = Array.from(document.getElementsByClassName("choice-text"));
-const questionCounterElement = document.getElementById('question-counter');
+const progressTextElement = document.getElementById('progress-text');
 const scoreElement = document.getElementById('score');
+const innerProgressBarElement = document.getElementById('inner-progress-bar');
 
 // VARIABLES
 
@@ -71,7 +72,10 @@ function getNewQuestion() {
 
     // increment the question counter
     questionCounter++;
-    questionCounterElement.innerText = `${questionCounter}/${maxQuestions}`
+    progressTextElement.innerText = `Question ${questionCounter}/${maxQuestions}`
+
+    //update the progress bar
+    innerProgressBarElement.style.width = `${(questionCounter / maxQuestions) * 100}%`;
 
     // display a question at random
     const questionIndex = Math.floor(Math.random() * availableQuestions.length);
@@ -112,7 +116,7 @@ choicesElements.forEach(choice => {
         // stop accepting answers once the user clicked on a choice
         acceptingAnswers = false;
 
-        // check that answer is correct
+        // check that the answer is correct
         const selectedChoice = event.target;
         const selectedAnswer = selectedChoice.dataset['number'];
         const classToApply = selectedAnswer == currentQuestion.answer ? 'correct' : 'incorrect';
