@@ -23,17 +23,43 @@ const maxQuestions = 3;
 
 let questions = [];
 
-fetch("questions.json")
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(loadedQuestions => {
-                        questions = loadedQuestions;
-                        startGame();
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    });
+fetch("https://opentdb.com/api.php?amount=10&difficulty=easy&type=multiple")
+                                                                        .then(response => {
+                                                                            return response.json();
+                                                                        })
+                                                                        .then(loadedQuestions => {
+                                                                                
+                                                                            // set questions to be the ones received from the open trivia API
+                                                                            questions = loadedQuestions.results
+                                                                            // format API questions to be compatible with the app's code
+                                                                            .map(loadedQuestion => {
+                                                                                
+                                                                                // create an object with a question property coming from the API
+                                                                                const formattedQuestion = {
+                                                                                    question : loadedQuestion.question
+                                                                                };
+
+                                                                                // set answer property to a random number 
+                                                                                formattedQuestion.answer = Math.floor(Math.random() * 3 ) + 1;
+
+                                                                                // create array of answer choices, starting with the incorrect ones
+                                                                                const answerChoices = [...loadedQuestion.incorrect_answers];
+
+                                                                                // insert correct answer in the array at the random number's index
+                                                                                answerChoices.splice(formattedQuestion.answer - 1, 0, loadedQuestion.correct_answer);
+
+                                                                                // set choice properties
+                                                                                answerChoices.forEach((choice, index) => {
+                                                                                    formattedQuestion["choice" + (index + 1)] = choice;
+                                                                                });
+
+                                                                                return formattedQuestion
+                                                                            });
+                                                                            startGame();
+                                                                        })
+                                                                        .catch(error => {
+                                                                            console.error(error);
+                                                                        });
 
 // FUNCTIONS
 
