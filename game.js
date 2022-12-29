@@ -5,6 +5,8 @@ const choicesElements = Array.from(document.getElementsByClassName("choice-text"
 const progressTextElement = document.getElementById('progress-text');
 const scoreElement = document.getElementById('score');
 const innerProgressBarElement = document.getElementById('inner-progress-bar');
+const loaderElement = document.getElementById('loader');
+const gameElement = document.getElementById('game');
 
 // VARIABLES
 
@@ -17,7 +19,7 @@ let availableQuestions;
 // CONSTANTS
 
 const correctBonus = 10;
-const maxQuestions = 3;
+const maxQuestions = 5;
 
 // Fetch API
 
@@ -70,8 +72,13 @@ function startGame() {
     score = 0;
     availableQuestions = [...questions];
 
-    // display a (new) question
+    // load a (new) question
     getNewQuestion();
+
+    // hide loader and display the loaded question
+    gameElement.classList.remove('hidden');
+    loaderElement.classList.add('hidden');
+
 };
 
 
