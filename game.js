@@ -1,159 +1,134 @@
 // DOM ELEMENTS
 
 const questionElement = document.getElementById("question");
-const choicesElements = Array.from(document.getElementsByClassName("choice-text"));
-const progressTextElement = document.getElementById('progress-text');
-const scoreElement = document.getElementById('score');
-const innerProgressBarElement = document.getElementById('inner-progress-bar');
-const loaderElement = document.getElementById('loader');
-const gameElement = document.getElementById('game');
+const choicesElements = Array.from(
+  document.getElementsByClassName("choice-text")
+);
+const progressTextElement = document.getElementById("progress-text");
+const scoreElement = document.getElementById("score");
+const innerProgressBarElement = document.getElementById("inner-progress-bar");
+const loaderElement = document.getElementById("loader");
+const gameElement = document.getElementById("game");
 
 // VARIABLES
-
 let currentQuestion;
 let acceptingAnswers = false;
 let score;
 let questionCounter;
 let availableQuestions;
+let questions = [];
 
 // CONSTANTS
 
 const correctBonus = 10;
 const maxQuestions = 5;
 
-// Fetch API
+// API
 
-let questions = [];
+const url =
+  "https://opentdb.com/api.php?amount=10&category=11&difficulty=easy&type=multiple";
 
-fetch("https://opentdb.com/api.php?amount=10&difficulty=easy&type=multiple")
-                                                                        .then(response => {
-                                                                            return response.json();
-                                                                        })
-                                                                        .then(loadedQuestions => {
-                                                                                
-                                                                            // set questions to be the ones received from the open trivia API
-                                                                            questions = loadedQuestions.results
-                                                                            // format API questions to be compatible with the app's code
-                                                                            .map(loadedQuestion => {
-                                                                                
-                                                                                // create an object with a question property coming from the API
-                                                                                const formattedQuestion = {
-                                                                                    question : loadedQuestion.question
-                                                                                };
+fetch(url)
+  .then((response) => {
+    return response.json();
+  })
+  .then((loadedQuestions) => {
+    questions = loadedQuestions.results.map((loadedQuestion) => {
+      const formattedQuestion = {
+        question: loadedQuestion.question,
+      };
 
-                                                                                // set answer property to a random number 
-                                                                                formattedQuestion.answer = Math.floor(Math.random() * 3 ) + 1;
+      formattedQuestion.answer = Math.floor(Math.random() * 3) + 1;
 
-                                                                                // create array of answer choices, starting with the incorrect ones
-                                                                                const answerChoices = [...loadedQuestion.incorrect_answers];
+      const answerChoices = [...loadedQuestion.incorrect_answers];
 
-                                                                                // insert correct answer in the array at the random number's index
-                                                                                answerChoices.splice(formattedQuestion.answer - 1, 0, loadedQuestion.correct_answer);
+      answerChoices.splice(
+        formattedQuestion.answer - 1,
+        0,
+        loadedQuestion.correct_answer
+      );
 
-                                                                                // set choice properties
-                                                                                answerChoices.forEach((choice, index) => {
-                                                                                    formattedQuestion["choice" + (index + 1)] = choice;
-                                                                                });
+      answerChoices.forEach((choice, index) => {
+        formattedQuestion["choice" + (index + 1)] = choice;
+      });
 
-                                                                                return formattedQuestion
-                                                                            });
-                                                                            startGame();
-                                                                        })
-                                                                        .catch(error => {
-                                                                            console.error(error);
-                                                                        });
+      return formattedQuestion;
+    });
+    startGame();
+  })
+  .catch((error) => {
+    console.error(error);
+  });
 
 // FUNCTIONS
 
 function startGame() {
+  questionCounter = 0;
+  score = 0;
+  availableQuestions = [...questions];
 
-    // set variables
-    questionCounter = 0;
-    score = 0;
-    availableQuestions = [...questions];
+  getNewQuestion();
 
-    // load a (new) question
-    getNewQuestion();
-
-    // hide loader and display the loaded question
-    gameElement.classList.remove('hidden');
-    loaderElement.classList.add('hidden');
-
-};
-
+  gameElement.classList.remove("hidden");
+  loaderElement.classList.add("hidden");
+}
 
 function getNewQuestion() {
+  if (availableQuestions === 0 || questionCounter >= maxQuestions) {
+    localStorage.setItem("mostRecentScore", score);
+    return window.location.assign("/end.html");
+  }
 
-    // take the user to the end page if there are no more available questions OR the limit has been reached
-    if (availableQuestions === 0 || questionCounter >= maxQuestions) {
-        // save the score to local storage
-        localStorage.setItem("mostRecentScore", score);
-        return window.location.assign('/end.html');
-    }
+  questionCounter++;
+  progressTextElement.innerText = `Question ${questionCounter}/${maxQuestions}`;
 
-    // increment the question counter
-    questionCounter++;
-    progressTextElement.innerText = `Question ${questionCounter}/${maxQuestions}`
+  innerProgressBarElement.style.width = `${
+    (questionCounter / maxQuestions) * 100
+  }%`;
 
-    //update the progress bar
-    innerProgressBarElement.style.width = `${(questionCounter / maxQuestions) * 100}%`;
+  const questionIndex = Math.floor(Math.random() * availableQuestions.length);
+  currentQuestion = availableQuestions[questionIndex];
+  questionElement.innerText = currentQuestion.question;
 
-    // display a question at random
-    const questionIndex = Math.floor(Math.random() * availableQuestions.length);
-    currentQuestion = availableQuestions[questionIndex];
-    questionElement.innerText = currentQuestion.question;
+  choicesElements.forEach((choice) => {
+    const number = choice.dataset["number"];
+    choice.innerText = currentQuestion["choice" + number];
+  });
 
-    // display the question's choices
-    choicesElements.forEach(choice => {
-        const number = choice.dataset['number'];
-        choice.innerText = currentQuestion['choice' + number];
-    });
+  availableQuestions.splice(questionIndex, 1);
 
-    // remove the current question from available questions
-    availableQuestions.splice(questionIndex, 1);
-
-    // let the user select an answer
-    acceptingAnswers = true;
-};
+  acceptingAnswers = true;
+}
 
 function incrementScore(number) {
-    score += number
-    scoreElement.innerText = score;
+  score += number;
+  scoreElement.innerText = score;
 }
 
 // EVENT LISTENERS
 
-choicesElements.forEach(choice => {
+choicesElements.forEach((choice) => {
+  choice.addEventListener("click", (event) => {
+    if (!acceptingAnswers) {
+      return;
+    }
 
-    choice.addEventListener('click', event => {
+    acceptingAnswers = false;
 
-        // ignore click action if not accepting answers
-        if (!acceptingAnswers) {
-            return
-        };
-        
-        // stop accepting answers once the user clicked on a choice
-        acceptingAnswers = false;
+    const selectedChoice = event.target;
+    const selectedAnswer = selectedChoice.dataset["number"];
+    const classToApply =
+      selectedAnswer == currentQuestion.answer ? "correct" : "incorrect";
 
-        // check that the answer is correct
-        const selectedChoice = event.target;
-        const selectedAnswer = selectedChoice.dataset['number'];
-        const classToApply = selectedAnswer == currentQuestion.answer ? 'correct' : 'incorrect';
+    selectedChoice.parentElement.classList.add(classToApply);
 
-        // apply fitting HTML class
-        selectedChoice.parentElement.classList.add(classToApply);
+    if (classToApply == "correct") {
+      incrementScore(correctBonus);
+    }
 
-        //increment score
-        if (classToApply == 'correct') {
-            incrementScore(correctBonus);
-        };
-
-        // remove class and load next question after 1s
-        setTimeout( () => {
-
-            selectedChoice.parentElement.classList.remove(classToApply);
-            getNewQuestion();
-
-        }, 1000);
-    });
+    setTimeout(() => {
+      selectedChoice.parentElement.classList.remove(classToApply);
+      getNewQuestion();
+    }, 1000);
+  });
 });
