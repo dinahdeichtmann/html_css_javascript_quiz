@@ -6,24 +6,24 @@ This quiz application is a **personal project** I built using James Q Quick's vi
 
 Thanks to this project I worked on at the very begining of my carreer change, I improved my **core Web Develoment skills**, namely my knowledge of **HTML, CSS, and JavaScript**. I learned how to build an application **without the assistance of libraries or frameworks**.
 
-## Technologies used
+## Technologies 
 
 - HTML
 - CSS
 - JavaScript
 
-## Skills gained
+## Skills 
 
 - Dynamically generate HTML in JavaScript
-- JavaScript : Array Functions (splice, map, sort), Local Storage, Fetch API
-- ES6 JavaScript Features : Arrow Functions, the Spread Operator, Const and Let, Template Literals
+- JavaScript : array functions (splice, map, sort), local storage, fetch API
+- ES6 JavaScript Features : arrow functions, the spread operator, const and let, template literals
 - HTML : Emmet abbreviations
-- CSS : Flexbox, Animations, and REM units
+- CSS : flexbox, animations, and REM units
 
 ## Functionalities
 
 - Load questions from Open Trivia DB API
-- Save high scores in Local Storage
+- Save high scores in local storage
 
 ## Credit
 
